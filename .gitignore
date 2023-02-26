@@ -1,0 +1,7 @@
+config/*.json
+**/*.cover
+**/*.coverprofile
+**/*.profile
+
+firebase-debug.log
+ui-debug.log
