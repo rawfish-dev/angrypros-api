@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -24,21 +25,21 @@ var (
 
 // Used for creating users and most of editing users
 type BaseUserRequest struct {
-	Username             string `json:"username"`
+	Title                string `json:"title"`
 	CountryIsoAlpha2Code string `json:"countryIsoAlpha2Code"`
 }
 
 func (b BaseUserRequest) validate(userConfig config.UserConfig) []error {
 	var validationErrors []error
 
+	// TODO:: Add back regex, only validating length currently
 	// re := regexp.MustCompile(userConfig.UsernameRegex)
-	// if len(b.Username) < userConfig.UsernameMinimumLength ||
-	// 	len(b.Username) > userConfig.UsernameMaximumLength ||
-	// 	!re.MatchString(strings.ToLower(b.Username)) {
-	// 	validationErrors = append(validationErrors,
-	// 		fmt.Errorf("username must be at least %d and at most %d in length, using only 0-9, a-z, periods and underscores",
-	// 			userConfig.UsernameMinimumLength, userConfig.UsernameMaximumLength))
-	// }
+	if len(b.Title) < userConfig.TitleMinimumLength ||
+		len(b.Title) > userConfig.TitleMaximumLength {
+		validationErrors = append(validationErrors,
+			fmt.Errorf("title must be at least %d and at most %d in length",
+				userConfig.TitleMinimumLength, userConfig.TitleMaximumLength))
+	}
 
 	return validationErrors
 }
@@ -83,9 +84,9 @@ type CurrentUserResponse struct {
 }
 
 type UserResponse struct {
-	Id       int64           `json:"id"`
-	Username string          `json:"username"`
-	Country  CountryResponse `json:"country"`
+	Id      int64           `json:"id"`
+	Title   string          `json:"title"`
+	Country CountryResponse `json:"country"`
 }
 
 type ForgotPasswordRequest struct {
@@ -149,7 +150,7 @@ func (s Server) CreateUserHandler(c *gin.Context) {
 	}
 
 	// No transaction added to prevent complete conflicts for simplicity
-	user, err := s.storageService.CreateUser(firebaseUserId, req.Username,
+	user, err := s.storageService.CreateUser(firebaseUserId, req.Title,
 		email, req.CountryIsoAlpha2Code)
 	if err != nil {
 		InternalServerError(c, err)
@@ -183,7 +184,7 @@ func (s Server) EditUserHandler(c *gin.Context) {
 		return
 	}
 
-	user, err := s.storageService.EditUser(*currentUser, req.Username, req.CountryIsoAlpha2Code)
+	user, err := s.storageService.EditUser(*currentUser, req.Title, req.CountryIsoAlpha2Code)
 	if err != nil {
 		InternalServerError(c, err)
 		return
@@ -250,9 +251,9 @@ func buildCurrentUserResponse(user models.User) CurrentUserResponse {
 
 func buildMinimalUserResponse(user models.User) UserResponse {
 	return UserResponse{
-		Id:       user.Id,
-		Username: user.Username,
-		Country:  buildCountryResponse(user.Country),
+		Id:      user.Id,
+		Title:   user.Title,
+		Country: buildCountryResponse(user.Country),
 	}
 }
 

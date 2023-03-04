@@ -62,10 +62,9 @@ type FeedConfig struct {
 }
 
 type UserConfig struct {
-	PasswordMinimumLength int    `json:"passwordMinimumLength"`
-	UsernameMinimumLength int    `json:"usernameMinimumLength"`
-	UsernameMaximumLength int    `json:"usernameMaximumLength"`
-	UsernameRegex         string `json:"usernameRegex"`
+	PasswordMinimumLength int `json:"passwordMinimumLength"`
+	TitleMinimumLength    int `json:"titleMinimumLength"`
+	TitleMaximumLength    int `json:"titleMaximumLength"`
 }
 
 func NewAppConfig(env, directoryPrefix string) AppConfig {

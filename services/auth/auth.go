@@ -16,7 +16,7 @@ import (
 var _ AuthService = new(Service)
 
 type AuthService interface {
-	CreateFirebaseUser(emailAddress, username, password string) (firebaseUserId string, err error)
+	CreateFirebaseUser(emailAddress, title, password string) (firebaseUserId string, err error)
 	GetFirebaseUserId(idToken string) (firebaseUserId string, err error)
 	GetFirebaseUserEmail(firebaseUserId string) (email string, err error)
 	// VerifyRecaptcha(recaptchaToken string) (err error)

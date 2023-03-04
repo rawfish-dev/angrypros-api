@@ -7,9 +7,8 @@ import (
 type User struct {
 	Id                     int64
 	FirebaseUserId         string `gorm:"uniqueindex;not null"`
-	Username               string `gorm:"not null"`
-	NormalisedUsername     string `gorm:"uniqueindex;not null"`
 	NormalisedEmailAddress string `gorm:"uniqueindex;not null"`
+	Title                  string `gorm:"not null"`
 	CreatedAt              time.Time
 	UpdatedAt              time.Time
 

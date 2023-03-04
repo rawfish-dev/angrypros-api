@@ -23,8 +23,8 @@ type StorageService interface {
 }
 
 type UserStorage interface {
-	CreateUser(firebaseUserId, username, emailAddress, countryIsoAlpha2Code string) (*models.User, error)
-	EditUser(user models.User, username, countryIsoAlpha2Code string) (*models.User, error)
+	CreateUser(firebaseUserId, title, emailAddress, countryIsoAlpha2Code string) (*models.User, error)
+	EditUser(user models.User, title, countryIsoAlpha2Code string) (*models.User, error)
 	GetUserById(userId int64) (*models.User, error)
 	GetUserByFirebaseUserId(firebaseUserId string) (*models.User, error)
 	GetUserByEmailAddress(emailAddress string) (*models.User, error)

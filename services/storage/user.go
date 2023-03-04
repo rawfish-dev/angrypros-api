@@ -7,14 +7,13 @@ import (
 	"github.com/rawfish-dev/angrypros-api/models"
 )
 
-func (s Service) CreateUser(firebaseUserId, username, emailAddress, countryIsoAlpha2Code string) (*models.User, error) {
+func (s Service) CreateUser(firebaseUserId, title, emailAddress, countryIsoAlpha2Code string) (*models.User, error) {
 	now := time.Now()
 
 	newUser := models.User{
 		FirebaseUserId:         firebaseUserId,
-		Username:               username,
-		NormalisedUsername:     strings.ToLower(username),
 		NormalisedEmailAddress: strings.ToLower(emailAddress),
+		Title:                  title,
 		CountryIsoAlpha2Code:   countryIsoAlpha2Code,
 		CreatedAt:              now,
 		UpdatedAt:              now,
@@ -33,13 +32,12 @@ func (s Service) CreateUser(firebaseUserId, username, emailAddress, countryIsoAl
 	return s.GetUserById(newUser.Id)
 }
 
-func (s Service) EditUser(user models.User, username, countryIsoAlpha2Code string) (*models.User, error) {
+func (s Service) EditUser(user models.User, title, countryIsoAlpha2Code string) (*models.User, error) {
 	now := time.Now()
 
 	editedUser := models.User{
-		Username:             username,
-		NormalisedUsername:   strings.ToLower(username),
 		CountryIsoAlpha2Code: countryIsoAlpha2Code,
+		Title:                title,
 		UpdatedAt:            now,
 	}
 
