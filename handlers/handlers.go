@@ -38,6 +38,7 @@ func (s Server) SetupRoutes() {
 	{
 		apiPublic.GET("/healthcheck", s.HealthcheckHandler)
 		apiPublic.GET("/countries", s.GetCountriesHandler)
+		apiPublic.GET("/profiles/:userId", s.GetProfileHandler)
 		// apiPublic.GET("/feed", s.GetFeedHandler)
 		// apiPublic.POST("/forgot-password", s.ForgotPasswordHandler)
 	}
@@ -47,6 +48,8 @@ func (s Server) SetupRoutes() {
 		apiAuthed.GET("/current-user", s.GetCurrentUserHandler)
 		apiAuthed.POST("/users", s.CreateUserHandler)
 		apiAuthed.PUT("/users", s.EditUserHandler)
+		apiAuthed.POST("/entries", s.CreateEntryHandler)
+		apiAuthed.GET("/entries/:entryId", s.GetEntryDetailsHandler)
 	}
 
 	// s.router.Use(cors.New(cors.Config{

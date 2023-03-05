@@ -36,6 +36,10 @@ type CountryStorage interface {
 }
 
 type EntryStorage interface {
+	GetAllAngerTiers() ([]models.AngerTier, error)
+	CreateEntry(userId, angerTierId int64,
+		isoAlpha2Code, textContent string, rageLevel int) (*models.Entry, error)
+	GetEntryById(entryId int64) (*models.Entry, error)
 }
 
 type Service struct {
@@ -60,7 +64,8 @@ func NewService(p config.PostgresConfig) (*Service, error) {
 		return nil, ConnectionError{err.Error()}
 	}
 
-	err = db.AutoMigrate(&models.User{}, &models.Country{})
+	err = db.AutoMigrate(&models.User{}, &models.Country{},
+		&models.AngerTier{}, &models.Entry{})
 	if err != nil {
 		return nil, GeneralDBError{fmt.Sprintf("could not auto migrate due to %s", err)}
 	}

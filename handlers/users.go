@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -87,6 +88,10 @@ type UserResponse struct {
 	Id      int64           `json:"id"`
 	Title   string          `json:"title"`
 	Country CountryResponse `json:"country"`
+}
+
+type ProfileResponse struct {
+	User UserResponse `json:"user"`
 }
 
 type ForgotPasswordRequest struct {
@@ -203,6 +208,35 @@ func (s Server) GetCurrentUserHandler(c *gin.Context) {
 	WrapJSONAPI(c, http.StatusOK, resp, nil, nil)
 }
 
+func (s Server) GetProfileHandler(c *gin.Context) {
+	userId := c.Param("userId")
+
+	parsedUserId, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		ResourceNotFoundError(c)
+		return
+	}
+
+	user, err := s.storageService.GetUserById(parsedUserId)
+	if err != nil {
+		switch err.(type) {
+		case storage.RecordNotFoundError:
+			ResourceNotFoundError(c)
+			return
+		}
+
+		InternalServerError(c, err)
+		return
+	}
+
+	currentUserId := requestCurrentUserId(c)
+	isCurrentUser := currentUserId != nil && *currentUserId == user.Id
+
+	resp := buildProfileResponse(*user, isCurrentUser)
+
+	WrapJSONAPI(c, http.StatusOK, resp, nil, nil)
+}
+
 func (s Server) ForgotPasswordHandler(c *gin.Context) {
 	jsonReqData, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -254,6 +288,12 @@ func buildMinimalUserResponse(user models.User) UserResponse {
 		Id:      user.Id,
 		Title:   user.Title,
 		Country: buildCountryResponse(user.Country),
+	}
+}
+
+func buildProfileResponse(user models.User, isCurrentUser bool) ProfileResponse {
+	return ProfileResponse{
+		User: buildMinimalUserResponse(user),
 	}
 }
 

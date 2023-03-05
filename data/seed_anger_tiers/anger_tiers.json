@@ -1,0 +1,34 @@
+[
+    {
+        "label": "Displeased",
+        "rageLevel": 1
+    },
+    {
+        "label": "Annoyed",
+        "rageLevel": 2
+    },
+    {
+        "label": "Cross",
+        "rageLevel": 3
+    },
+    {
+        "label": "Hostile",
+        "rageLevel": 4
+    },
+    {
+        "label": "Fuming",
+        "rageLevel": 5
+    },
+    {
+        "label": "Furious",
+        "rageLevel": 6
+    },
+    {
+        "label": "Enraged",
+        "rageLevel": 7
+    },
+    {
+        "label": "Incandescent",
+        "rageLevel": 8
+    }
+]
