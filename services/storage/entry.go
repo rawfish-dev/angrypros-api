@@ -67,7 +67,7 @@ func (s Service) EditEntry(entryId, userId int64, textContent string) (*models.E
 	return s.GetEntryById(entryId)
 }
 
-func (s Service) GetEntries(beforeTimestampMicro int64, size int) ([]models.Entry, error) {
+func (s Service) GetEntries(beforeTimestampMicro int64, size int, userIdFilter *int64) ([]models.Entry, error) {
 	var entries []models.Entry
 
 	if size <= 0 {
@@ -76,13 +76,18 @@ func (s Service) GetEntries(beforeTimestampMicro int64, size int) ([]models.Entr
 
 	queryTime := time.UnixMicro(beforeTimestampMicro)
 
-	result := s.db.
+	builtScopes := s.db.
 		Preload("User.Country").
 		Preload("AngerTier").
 		Order("entries.created_at DESC").
 		Limit(size).
-		Where("entries.created_at < ?", queryTime).
-		Find(&entries)
+		Where("entries.created_at < ?", queryTime)
+
+	if userIdFilter != nil {
+		builtScopes.Where("user_id = ?", *userIdFilter)
+	}
+
+	result := builtScopes.Find(&entries)
 	if result.Error != nil {
 		return nil, GeneralDBError{result.Error.Error()}
 	}

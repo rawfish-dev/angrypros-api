@@ -209,15 +209,15 @@ func (s Server) GetCurrentUserHandler(c *gin.Context) {
 }
 
 func (s Server) GetProfileHandler(c *gin.Context) {
-	userId := c.Param("userId")
+	userIdStr := c.Param("userId")
 
-	parsedUserId, err := strconv.ParseInt(userId, 10, 64)
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
 	if err != nil {
 		ResourceNotFoundError(c)
 		return
 	}
 
-	user, err := s.storageService.GetUserById(parsedUserId)
+	user, err := s.storageService.GetUserById(userId)
 	if err != nil {
 		switch err.(type) {
 		case storage.RecordNotFoundError:

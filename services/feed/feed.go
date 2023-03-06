@@ -8,7 +8,7 @@ import (
 var _ FeedService = new(Service)
 
 type FeedService interface {
-	GetFeedItems(beforeTimestamp int64, size int) ([]models.Entry, error)
+	GetFeedItems(beforeTimestamp int64, size int, userIdFilter *int64) ([]models.Entry, error)
 }
 
 type Service struct {
@@ -21,8 +21,8 @@ func NewService(e storage.EntryStorage) *Service {
 	}
 }
 
-func (s Service) GetFeedItems(beforeTimestamp int64, size int) ([]models.Entry, error) {
-	entries, err := s.entryStorage.GetEntries(beforeTimestamp, size)
+func (s Service) GetFeedItems(beforeTimestamp int64, size int, userIdFilter *int64) ([]models.Entry, error) {
+	entries, err := s.entryStorage.GetEntries(beforeTimestamp, size, userIdFilter)
 	if err != nil {
 		return nil, err
 	}

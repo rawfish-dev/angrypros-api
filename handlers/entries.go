@@ -96,15 +96,15 @@ func (s Server) CreateEntryHandler(c *gin.Context) {
 }
 
 func (s Server) GetEntryDetailsHandler(c *gin.Context) {
-	entryId := c.Param("entryId")
+	entryIdStr := c.Param("entryId")
 
-	parsedEntryId, err := strconv.ParseInt(entryId, 10, 64)
+	entryId, err := strconv.ParseInt(entryIdStr, 10, 64)
 	if err != nil {
 		ResourceNotFoundError(c)
 		return
 	}
 
-	entry, err := s.storageService.GetEntryById(parsedEntryId)
+	entry, err := s.storageService.GetEntryById(entryId)
 	if err != nil {
 		switch err.(type) {
 		case storage.RecordNotFoundError:
@@ -124,9 +124,9 @@ func (s Server) GetEntryDetailsHandler(c *gin.Context) {
 func (s Server) EditEntryHandler(c *gin.Context) {
 	currentUser := c.MustGet("currentUser").(*models.User)
 
-	entryId := c.Param("entryId")
+	entryIdStr := c.Param("entryId")
 
-	parsedEntryId, err := strconv.ParseInt(entryId, 10, 64)
+	entryId, err := strconv.ParseInt(entryIdStr, 10, 64)
 	if err != nil {
 		ResourceNotFoundError(c)
 		return
@@ -145,7 +145,7 @@ func (s Server) EditEntryHandler(c *gin.Context) {
 		return
 	}
 
-	entry, err := s.storageService.EditEntry(parsedEntryId, currentUser.Id, req.TextContent)
+	entry, err := s.storageService.EditEntry(entryId, currentUser.Id, req.TextContent)
 	if err != nil {
 		InternalServerError(c, err)
 		return
@@ -159,7 +159,13 @@ func (s Server) EditEntryHandler(c *gin.Context) {
 func (s Server) GetFeedHandler(c *gin.Context) {
 	beforeTimestampMicro := s.getParsedBeforeTimestamp(c.Query("before"))
 
-	entryables, err := s.feedService.GetFeedItems(beforeTimestampMicro, s.config.FeedConfig.DefaultPageSize)
+	userId := s.getParsedUserId(c.Query("userId"))
+	var userIdFilter *int64
+	if userId != 0 {
+		userIdFilter = &userId
+	}
+
+	entryables, err := s.feedService.GetFeedItems(beforeTimestampMicro, s.config.FeedConfig.DefaultPageSize, userIdFilter)
 	if err != nil {
 		InternalServerError(c, err)
 		return
@@ -193,6 +199,15 @@ func (s Server) getParsedBeforeTimestamp(beforeTimestampStr string) int64 {
 	}
 
 	return beforeTimestampMicro
+}
+
+func (s Server) getParsedUserId(userIdStr string) int64 {
+	var userId int64
+	if userIdStr != "" {
+		userId, _ = strconv.ParseInt(userIdStr, 10, 64)
+	}
+
+	return userId
 }
 
 func buildEntryResponse(entry models.Entry) EntryResponse {
