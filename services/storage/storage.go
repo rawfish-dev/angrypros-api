@@ -40,6 +40,8 @@ type EntryStorage interface {
 	CreateEntry(userId, angerTierId int64,
 		isoAlpha2Code, textContent string, rageLevel int) (*models.Entry, error)
 	GetEntryById(entryId int64) (*models.Entry, error)
+	EditEntry(entryId, userId int64, textContent string) (*models.Entry, error)
+	GetEntries(beforeTimestampMicro int64, size int) ([]models.Entry, error)
 }
 
 type Service struct {

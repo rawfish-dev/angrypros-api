@@ -7,6 +7,7 @@ import (
 
 	"github.com/rawfish-dev/angrypros-api/config"
 	"github.com/rawfish-dev/angrypros-api/services/auth"
+	"github.com/rawfish-dev/angrypros-api/services/feed"
 	"github.com/rawfish-dev/angrypros-api/services/storage"
 	timeS "github.com/rawfish-dev/angrypros-api/services/time"
 )
@@ -15,16 +16,19 @@ type Server struct {
 	config         config.AppConfig
 	router         *gin.Engine
 	authService    auth.AuthService
+	feedService    feed.FeedService
 	storageService storage.StorageService
 	timeService    timeS.TimeService
 }
 
 func NewServer(config config.AppConfig, a auth.AuthService,
-	s storage.StorageService, t timeS.TimeService) (*Server, error) {
+	f feed.FeedService, s storage.StorageService,
+	t timeS.TimeService) (*Server, error) {
 	return &Server{
 		config:         config,
 		router:         gin.Default(),
 		authService:    a,
+		feedService:    f,
 		storageService: s,
 		timeService:    t,
 	}, nil
@@ -39,7 +43,7 @@ func (s Server) SetupRoutes() {
 		apiPublic.GET("/healthcheck", s.HealthcheckHandler)
 		apiPublic.GET("/countries", s.GetCountriesHandler)
 		apiPublic.GET("/profiles/:userId", s.GetProfileHandler)
-		// apiPublic.GET("/feed", s.GetFeedHandler)
+		apiPublic.GET("/feed", s.GetFeedHandler)
 		// apiPublic.POST("/forgot-password", s.ForgotPasswordHandler)
 	}
 
@@ -50,6 +54,7 @@ func (s Server) SetupRoutes() {
 		apiAuthed.PUT("/users", s.EditUserHandler)
 		apiAuthed.POST("/entries", s.CreateEntryHandler)
 		apiAuthed.GET("/entries/:entryId", s.GetEntryDetailsHandler)
+		apiAuthed.PUT("/entries/:entryId", s.EditEntryHandler)
 	}
 
 	// s.router.Use(cors.New(cors.Config{

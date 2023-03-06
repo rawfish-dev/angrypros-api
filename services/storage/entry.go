@@ -1,6 +1,10 @@
 package storage
 
-import "github.com/rawfish-dev/angrypros-api/models"
+import (
+	"time"
+
+	"github.com/rawfish-dev/angrypros-api/models"
+)
 
 func (s Service) GetAllAngerTiers() ([]models.AngerTier, error) {
 	var angerTiers []models.AngerTier
@@ -36,10 +40,52 @@ func (s Service) GetEntryById(entryId int64) (*models.Entry, error) {
 		Id: entryId,
 	}
 
-	result := s.db.Preload("AngerTier").Find(&entry)
+	result := s.db.
+		Preload("User.Country").
+		Preload("AngerTier").
+		Find(&entry)
 	if result.Error != nil {
 		return nil, GeneralDBError{result.Error.Error()}
 	}
 
 	return &entry, nil
+}
+
+func (s Service) EditEntry(entryId, userId int64, textContent string) (*models.Entry, error) {
+	editedEntry := models.Entry{
+		Id:          entryId,
+		TextContent: textContent,
+	}
+
+	result := s.db.Table("entries").
+		Where("id = ? AND user_id = ?", entryId, userId).
+		Updates(&editedEntry)
+	if result.Error != nil {
+		return nil, GeneralDBError{result.Error.Error()}
+	}
+
+	return s.GetEntryById(entryId)
+}
+
+func (s Service) GetEntries(beforeTimestampMicro int64, size int) ([]models.Entry, error) {
+	var entries []models.Entry
+
+	if size <= 0 {
+		return entries, nil
+	}
+
+	queryTime := time.UnixMicro(beforeTimestampMicro)
+
+	result := s.db.
+		Preload("User.Country").
+		Preload("AngerTier").
+		Order("entries.created_at DESC").
+		Limit(size).
+		Where("entries.created_at < ?", queryTime).
+		Find(&entries)
+	if result.Error != nil {
+		return nil, GeneralDBError{result.Error.Error()}
+	}
+
+	return entries, nil
 }
