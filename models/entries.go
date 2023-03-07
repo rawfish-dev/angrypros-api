@@ -22,6 +22,6 @@ type Entry struct {
 	User                 User      `gorm:"foreignKey:UserId"`
 	CountryIsoAlpha2Code string    `gorm:"not null"`
 	Country              Country   `gorm:"foreignKey:CountryIsoAlpha2Code"`
-	AngryTierId          int64     `gorm:"not null"`
-	AngerTier            AngerTier `gorm:"foreignKey:AngryTierId"`
+	AngerTierId          int64     `gorm:"not null"`
+	AngerTier            AngerTier `gorm:"foreignKey:AngerTierId"`
 }

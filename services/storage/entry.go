@@ -22,7 +22,7 @@ func (s Service) CreateEntry(userId, angerTierId int64,
 	entry := models.Entry{
 		UserId:               userId,
 		CountryIsoAlpha2Code: countryIsoAlpha2Code,
-		AngryTierId:          angerTierId,
+		AngerTierId:          angerTierId,
 		TextContent:          textContent,
 		RageLevel:            rageLevel,
 	}
@@ -41,11 +41,15 @@ func (s Service) GetEntryById(entryId int64) (*models.Entry, error) {
 	}
 
 	result := s.db.
-		Preload("User.Country").
+		Preload("User").
+		Preload("Country").
 		Preload("AngerTier").
 		Find(&entry)
 	if result.Error != nil {
 		return nil, GeneralDBError{result.Error.Error()}
+	}
+	if result.RowsAffected == 0 {
+		return nil, RecordNotFoundError{}
 	}
 
 	return &entry, nil

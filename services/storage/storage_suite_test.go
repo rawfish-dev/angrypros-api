@@ -31,7 +31,8 @@ var (
 	seedCountries      []models.Country
 	seedAngerTiers     []models.AngerTier
 
-	seedUsers []models.User
+	seedUsers   []models.User
+	seedEntries []models.Entry
 )
 
 var _ = BeforeSuite(func() {
@@ -150,6 +151,7 @@ func prepareAngerTiers() {
 
 func truncateDynamic() {
 	commands := []string{
+		"TRUNCATE entries RESTART IDENTITY CASCADE;",
 		"TRUNCATE users RESTART IDENTITY CASCADE;",
 	}
 
@@ -164,6 +166,7 @@ func truncateDynamic() {
 
 func seedDynamic() {
 	prepareSeedUsers()
+	prepareSeedEntries()
 }
 
 func prepareSeedUsers() {
@@ -188,6 +191,26 @@ func prepareSeedUsers() {
 			Fail(result.Error.Error())
 		}
 		seedUsers[idx] = user
+	}
+}
+
+func prepareSeedEntries() {
+	seedEntries = []models.Entry{
+		{
+			TextContent:          "some test content #1",
+			RageLevel:            88,
+			UserId:               seedUsers[0].Id,
+			CountryIsoAlpha2Code: seedUsers[0].CountryIsoAlpha2Code,
+			AngerTierId:          seedAngerTiers[0].Id,
+		},
+	}
+	for idx := range seedEntries {
+		entry := seedEntries[idx]
+		result := testDB.Create(&entry)
+		if result.Error != nil {
+			Fail(result.Error.Error())
+		}
+		seedEntries[idx] = entry
 	}
 }
 
