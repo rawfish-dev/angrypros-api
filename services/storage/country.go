@@ -12,7 +12,3 @@ func (s Service) GetAllCountries() ([]models.Country, error) {
 
 	return countries, nil
 }
-
-func (s Service) GetCountryByIsoAlpha2Code(IsoAlpha2Code string) (*models.Country, error) {
-	return nil, nil
-}

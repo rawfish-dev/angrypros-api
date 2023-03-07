@@ -32,7 +32,6 @@ type UserStorage interface {
 
 type CountryStorage interface {
 	GetAllCountries() ([]models.Country, error)
-	GetCountryByIsoAlpha2Code(isoAlpha2Code string) (*models.Country, error)
 }
 
 type EntryStorage interface {

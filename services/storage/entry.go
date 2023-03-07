@@ -9,7 +9,7 @@ import (
 func (s Service) GetAllAngerTiers() ([]models.AngerTier, error) {
 	var angerTiers []models.AngerTier
 
-	result := s.db.Find(&angerTiers).Order("rage_level asc")
+	result := s.db.Order("rage_level ASC").Find(&angerTiers)
 	if result.Error != nil {
 		return nil, GeneralDBError{result.Error.Error()}
 	}
