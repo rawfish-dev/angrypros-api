@@ -2,6 +2,7 @@ config/*.json
 **/*.cover
 **/*.coverprofile
 **/*.profile
+**/.DS_Store
 
 firebase-debug.log
 ui-debug.log

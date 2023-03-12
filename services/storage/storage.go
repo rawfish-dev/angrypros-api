@@ -66,7 +66,8 @@ func NewService(p config.PostgresConfig) (*Service, error) {
 	}
 
 	err = db.AutoMigrate(&models.User{}, &models.Country{},
-		&models.AngerTier{}, &models.Entry{})
+		&models.AngerTier{}, &models.Entry{},
+		&models.Rarity{}, &models.Award{})
 	if err != nil {
 		return nil, GeneralDBError{fmt.Sprintf("could not auto migrate due to %s", err)}
 	}

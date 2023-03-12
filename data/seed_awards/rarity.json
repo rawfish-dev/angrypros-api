@@ -1,0 +1,22 @@
+[
+    {
+        "label": "Uncommon",
+        "percentageChance": 10
+    },
+    {
+        "label": "Rare",
+        "percentageChance": 1
+    },
+    {
+        "label": "Very Rare",
+        "percentageChance": 0.1
+    },
+    {
+        "label": "Super Rare",
+        "percentageChance": 0.01
+    },
+    {
+        "label": "Ultra Rare",
+        "percentageChance": 0.001
+    }
+]
