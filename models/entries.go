@@ -13,7 +13,6 @@ type AngerTier struct {
 type Entry struct {
 	Id          int64
 	TextContent string
-	RageLevel   int
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 

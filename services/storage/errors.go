@@ -7,14 +7,20 @@ import (
 
 // TODO:: Breakdown filter constraints by table name to reduce looping?
 const (
-	userAlreadyRegisteredErr = "duplicate key value violates unique constraint \"idx_users_firebase_user_id\""
-	countryCodeInvalidErr    = "insert or update on table \"users\" violates foreign key constraint \"fk_users_country\""
+	userAlreadyRegisteredErr   = "duplicate key value violates unique constraint \"idx_users_firebase_user_id\""
+	userCountryCodeInvalidErr  = "insert or update on table \"users\" violates foreign key constraint \"fk_users_country\""
+	userIdInvalidErr           = "insert or update on table \"entries\" violates foreign key constraint \"fk_entries_user\""
+	entryAngerTierIdInvalidErr = "insert or update on table \"entries\" violates foreign key constraint \"fk_entries_anger_tier\""
+	entryCountryCodeInvalidErr = "insert or update on table \"entries\" violates foreign key constraint \"fk_entries_country\""
 )
 
 var (
 	knownPartialErrorMessages = []string{
 		userAlreadyRegisteredErr,
-		countryCodeInvalidErr,
+		userCountryCodeInvalidErr,
+		userIdInvalidErr,
+		entryAngerTierIdInvalidErr,
+		entryCountryCodeInvalidErr,
 	}
 )
 
@@ -58,6 +64,12 @@ func (u UserIdInvalidError) Error() string {
 	return "user id is invalid"
 }
 
+type AngerTierIdInvalidError struct{}
+
+func (u AngerTierIdInvalidError) Error() string {
+	return "anger tier id is invalid"
+}
+
 func filterConstraintErrors(err error) error {
 	var matchedErrorString string
 
@@ -69,10 +81,14 @@ func filterConstraintErrors(err error) error {
 	}
 
 	switch matchedErrorString {
-	case countryCodeInvalidErr:
-		return CountryCodeInvalidError{}
 	case userAlreadyRegisteredErr:
 		return UserAlreadyRegisteredError{}
+	case userCountryCodeInvalidErr, entryCountryCodeInvalidErr:
+		return CountryCodeInvalidError{}
+	case userIdInvalidErr:
+		return UserIdInvalidError{}
+	case entryAngerTierIdInvalidErr:
+		return AngerTierIdInvalidError{}
 	}
 
 	return nil

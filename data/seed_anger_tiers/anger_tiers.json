@@ -8,27 +8,19 @@
         "rageLevel": 2
     },
     {
-        "label": "Cross",
+        "label": "Mad",
         "rageLevel": 3
     },
     {
-        "label": "Hostile",
+        "label": "Furious",
         "rageLevel": 4
     },
     {
-        "label": "Fuming",
+        "label": "Enraged",
         "rageLevel": 5
     },
     {
-        "label": "Furious",
-        "rageLevel": 6
-    },
-    {
-        "label": "Enraged",
-        "rageLevel": 7
-    },
-    {
         "label": "Incandescent",
-        "rageLevel": 8
+        "rageLevel": 6
     }
 ]

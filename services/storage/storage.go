@@ -37,7 +37,7 @@ type CountryStorage interface {
 type EntryStorage interface {
 	GetAllAngerTiers() ([]models.AngerTier, error)
 	CreateEntry(userId, angerTierId int64,
-		isoAlpha2Code, textContent string, rageLevel int) (*models.Entry, error)
+		isoAlpha2Code, textContent string) (*models.Entry, error)
 	GetEntryById(entryId int64) (*models.Entry, error)
 	EditEntry(entryId, userId int64, textContent string) (*models.Entry, error)
 	GetEntries(beforeTimestampMicro int64, size int, userIdFilter *int64) ([]models.Entry, error)

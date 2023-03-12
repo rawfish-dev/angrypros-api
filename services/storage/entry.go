@@ -18,21 +18,25 @@ func (s Service) GetAllAngerTiers() ([]models.AngerTier, error) {
 }
 
 func (s Service) CreateEntry(userId, angerTierId int64,
-	countryIsoAlpha2Code, textContent string, rageLevel int) (*models.Entry, error) {
+	countryIsoAlpha2Code, textContent string) (*models.Entry, error) {
 	entry := models.Entry{
 		UserId:               userId,
 		CountryIsoAlpha2Code: countryIsoAlpha2Code,
 		AngerTierId:          angerTierId,
 		TextContent:          textContent,
-		RageLevel:            rageLevel,
 	}
 
 	result := s.db.Create(&entry)
 	if result.Error != nil {
+		constraintError := filterConstraintErrors(result.Error)
+		if constraintError != nil {
+			return nil, constraintError
+		}
+
 		return nil, GeneralDBError{result.Error.Error()}
 	}
 
-	return &entry, nil
+	return s.GetEntryById(entry.Id)
 }
 
 func (s Service) GetEntryById(entryId int64) (*models.Entry, error) {
@@ -41,7 +45,7 @@ func (s Service) GetEntryById(entryId int64) (*models.Entry, error) {
 	}
 
 	result := s.db.
-		Preload("User").
+		Preload("User.Country").
 		Preload("Country").
 		Preload("AngerTier").
 		Find(&entry)
@@ -62,10 +66,13 @@ func (s Service) EditEntry(entryId, userId int64, textContent string) (*models.E
 	}
 
 	result := s.db.Table("entries").
-		Where("id = ? AND user_id = ?", entryId, userId).
+		Where("user_id = ?", userId).
 		Updates(&editedEntry)
 	if result.Error != nil {
 		return nil, GeneralDBError{result.Error.Error()}
+	}
+	if result.RowsAffected == 0 {
+		return nil, RecordNotFoundError{}
 	}
 
 	return s.GetEntryById(entryId)
@@ -82,6 +89,7 @@ func (s Service) GetEntries(beforeTimestampMicro int64, size int, userIdFilter *
 
 	builtScopes := s.db.
 		Preload("User.Country").
+		Preload("Country").
 		Preload("AngerTier").
 		Order("entries.created_at DESC").
 		Limit(size).

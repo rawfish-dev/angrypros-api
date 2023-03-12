@@ -198,10 +198,21 @@ func prepareSeedEntries() {
 	seedEntries = []models.Entry{
 		{
 			TextContent:          "some test content #1",
-			RageLevel:            88,
 			UserId:               seedUsers[0].Id,
 			CountryIsoAlpha2Code: seedUsers[0].CountryIsoAlpha2Code,
 			AngerTierId:          seedAngerTiers[0].Id,
+		},
+		{
+			TextContent:          "some test content #2",
+			UserId:               seedUsers[0].Id,
+			CountryIsoAlpha2Code: seedUsers[0].CountryIsoAlpha2Code,
+			AngerTierId:          seedAngerTiers[1].Id,
+		},
+		{
+			TextContent:          "some test content #3",
+			UserId:               seedUsers[1].Id,
+			CountryIsoAlpha2Code: seedUsers[1].CountryIsoAlpha2Code,
+			AngerTierId:          seedAngerTiers[2].Id,
 		},
 	}
 	for idx := range seedEntries {

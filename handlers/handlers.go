@@ -55,6 +55,7 @@ func (s Server) SetupRoutes() {
 		apiAuthed.POST("/entries", s.CreateEntryHandler)
 		apiAuthed.GET("/entries/:entryId", s.GetEntryDetailsHandler)
 		apiAuthed.PUT("/entries/:entryId", s.EditEntryHandler)
+		apiAuthed.GET("/config/create-entry", s.GetCreateEntryConfigHandler)
 	}
 
 	// s.router.Use(cors.New(cors.Config{

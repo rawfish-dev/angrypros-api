@@ -25,7 +25,7 @@ func (b BaseEntryRequest) validate(e config.EntryConfig) []error {
 
 type CreateEntryRequest struct {
 	BaseEntryRequest
-	RageLevel int `json:"rageLevel"` // TODO:: Encrypt in future to prevent user input
+	AngerTierId int `json:"angerTierId"`
 }
 
 type EditEntryRequest struct {
@@ -33,13 +33,18 @@ type EditEntryRequest struct {
 }
 
 type EntryResponse struct {
-	Id             int64        `json:"id"`
-	User           UserResponse `json:"user"`
-	AngerTierLabel string       `json:"angerTierLabel"`
-	TextContent    string       `json:"textContent"`
-	RageLevel      int          `json:"rageLevel"`
-	CreatedAt      time.Time    `json:"createdAt"`
-	UpdatedAt      time.Time    `json:"updatedAt"`
+	Id          int64             `json:"id"`
+	User        UserResponse      `json:"user"`
+	AngerTier   AngerTierResponse `json:"angerTier"`
+	TextContent string            `json:"textContent"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	UpdatedAt   time.Time         `json:"updatedAt"`
+}
+
+type AngerTierResponse struct {
+	Id        int64  `json:"id"`
+	Label     string `json:"label"`
+	RageLevel int    `json:"rageLevel"`
 }
 
 type FeedResponse struct {
@@ -70,21 +75,8 @@ func (s Server) CreateEntryHandler(c *gin.Context) {
 		return
 	}
 
-	orderedAngerTiers, err := s.storageService.GetAllAngerTiers()
-	if err != nil {
-		InternalServerError(c, err)
-		return
-	}
-
-	angerTier := s.mapRageLevelToAngerTier(orderedAngerTiers, req.RageLevel)
-	if angerTier == nil {
-		// Anger tier cannot be found which shouldn't happen
-		InternalServerError(c, err)
-		return
-	}
-
-	entry, err := s.storageService.CreateEntry(currentUser.Id, angerTier.Id,
-		currentUser.Country.IsoAlpha2Code, req.TextContent, req.RageLevel)
+	entry, err := s.storageService.CreateEntry(currentUser.Id, int64(req.AngerTierId),
+		currentUser.Country.IsoAlpha2Code, req.TextContent)
 	if err != nil {
 		InternalServerError(c, err)
 		return
@@ -176,18 +168,6 @@ func (s Server) GetFeedHandler(c *gin.Context) {
 	WrapJSONAPI(c, http.StatusOK, resp, nil, nil)
 }
 
-func (s Server) mapRageLevelToAngerTier(orderedAngerTiers []models.AngerTier, rageLevel int) *models.AngerTier {
-	// Rage levels dictate order but also represent the actual bands
-	for _, angerTier := range orderedAngerTiers {
-		// Multiply by 10 as stored rage levels are 1 - 8
-		if rageLevel < angerTier.RageLevel*10 {
-			return &angerTier
-		}
-	}
-
-	return nil
-}
-
 func (s Server) getParsedBeforeTimestamp(beforeTimestampStr string) int64 {
 	var beforeTimestampMicro int64
 	if beforeTimestampStr != "" {
@@ -212,13 +192,20 @@ func (s Server) getParsedUserId(userIdStr string) int64 {
 
 func buildEntryResponse(entry models.Entry) EntryResponse {
 	return EntryResponse{
-		Id:             entry.Id,
-		User:           buildMinimalUserResponse(entry.User),
-		AngerTierLabel: entry.AngerTier.Label,
-		TextContent:    entry.TextContent,
-		RageLevel:      entry.RageLevel,
-		CreatedAt:      entry.CreatedAt,
-		UpdatedAt:      entry.UpdatedAt,
+		Id:          entry.Id,
+		User:        buildMinimalUserResponse(entry.User),
+		AngerTier:   buildAngerTierResponse(entry.AngerTier),
+		TextContent: entry.TextContent,
+		CreatedAt:   entry.CreatedAt,
+		UpdatedAt:   entry.UpdatedAt,
+	}
+}
+
+func buildAngerTierResponse(angerTier models.AngerTier) AngerTierResponse {
+	return AngerTierResponse{
+		Id:        angerTier.Id,
+		Label:     angerTier.Label,
+		RageLevel: angerTier.RageLevel,
 	}
 }
 
@@ -241,4 +228,14 @@ func buildEntryResponses(entries []models.Entry) []EntryResponse {
 	}
 
 	return entryResponses
+}
+
+func buildAngerTierResponses(angerTiers []models.AngerTier) []AngerTierResponse {
+	angerTierResponses := make([]AngerTierResponse, len(angerTiers))
+
+	for idx := range angerTiers {
+		angerTierResponses[idx] = buildAngerTierResponse(angerTiers[idx])
+	}
+
+	return angerTierResponses
 }
