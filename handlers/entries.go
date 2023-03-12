@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -51,6 +52,18 @@ type FeedResponse struct {
 	Entries             []EntryResponse `json:"entries"`
 	QueryTimestampMicro int64           `json:"queryTimestampMicro"`
 	MoreResults         bool            `json:"moreResults"`
+}
+
+type AwardResponse struct {
+	Id          int64  `json:"id"`
+	Label       string `json:"label"`
+	ImageUrl    string `json:"imageUrl"`
+	Description string `json:"description"`
+	RarityLabel string `json:"rarityLabel"`
+}
+
+type AwardsResponse struct {
+	Awards []AwardResponse `json:"awards"`
 }
 
 func (s Server) CreateEntryHandler(c *gin.Context) {
@@ -168,6 +181,18 @@ func (s Server) GetFeedHandler(c *gin.Context) {
 	WrapJSONAPI(c, http.StatusOK, resp, nil, nil)
 }
 
+func (s Server) GetAwardsHandler(c *gin.Context) {
+	awards, err := s.storageService.GetAllAwards()
+	if err != nil {
+		InternalServerError(c, err)
+		return
+	}
+
+	resp := buildAwardsResponse(awards)
+
+	WrapJSONAPI(c, http.StatusOK, resp, nil, nil)
+}
+
 func (s Server) getParsedBeforeTimestamp(beforeTimestampStr string) int64 {
 	var beforeTimestampMicro int64
 	if beforeTimestampStr != "" {
@@ -238,4 +263,30 @@ func buildAngerTierResponses(angerTiers []models.AngerTier) []AngerTierResponse 
 	}
 
 	return angerTierResponses
+}
+
+func buildAwardsResponse(awards []models.Award) AwardsResponse {
+	awardResponses := make([]AwardResponse, len(awards))
+
+	for idx := range awards {
+		awardResponses[idx] = buildAwardResponse(awards[idx])
+	}
+
+	return AwardsResponse{
+		Awards: awardResponses,
+	}
+}
+
+func buildAwardResponse(award models.Award) AwardResponse {
+	return AwardResponse{
+		Id:          award.Id,
+		Label:       award.Label,
+		ImageUrl:    award.ImageUrl,
+		Description: award.Description,
+		RarityLabel: buildRarityLabel(award.Rarity),
+	}
+}
+
+func buildRarityLabel(rarity models.Rarity) string {
+	return fmt.Sprintf("%s (%s%%)", rarity.Label, strconv.FormatFloat(rarity.PercentageChance, 'f', -1, 64))
 }

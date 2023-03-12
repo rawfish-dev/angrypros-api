@@ -41,6 +41,7 @@ type EntryStorage interface {
 	GetEntryById(entryId int64) (*models.Entry, error)
 	EditEntry(entryId, userId int64, textContent string) (*models.Entry, error)
 	GetEntries(beforeTimestampMicro int64, size int, userIdFilter *int64) ([]models.Entry, error)
+	GetAllAwards() ([]models.Award, error)
 }
 
 type Service struct {

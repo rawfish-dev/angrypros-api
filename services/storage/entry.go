@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"sort"
 	"time"
 
 	"github.com/rawfish-dev/angrypros-api/models"
@@ -105,4 +106,22 @@ func (s Service) GetEntries(beforeTimestampMicro int64, size int, userIdFilter *
 	}
 
 	return entries, nil
+}
+
+func (s Service) GetAllAwards() ([]models.Award, error) {
+	var awards []models.Award
+
+	// TODO:: Figure out sort in the db
+	result := s.db.
+		Joins("Rarity").
+		Find(&awards)
+	if result.Error != nil {
+		return nil, GeneralDBError{result.Error.Error()}
+	}
+
+	sort.Slice(awards, func(i, j int) bool {
+		return awards[i].Rarity.PercentageChance > awards[j].Rarity.PercentageChance
+	})
+
+	return awards, nil
 }

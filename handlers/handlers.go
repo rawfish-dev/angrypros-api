@@ -44,6 +44,7 @@ func (s Server) SetupRoutes() {
 		apiPublic.GET("/countries", s.GetCountriesHandler)
 		apiPublic.GET("/profiles/:userId", s.GetProfileHandler)
 		apiPublic.GET("/feed", s.GetFeedHandler)
+		apiPublic.GET("/awards", s.GetAwardsHandler)
 		// apiPublic.POST("/forgot-password", s.ForgotPasswordHandler)
 	}
 
